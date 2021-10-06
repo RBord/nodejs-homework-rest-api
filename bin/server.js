@@ -4,10 +4,7 @@ const dotenv = require('dotenv').config();
 
 const { PORT = 3000, DB_HOST } = process.env;
 
-mongoose.connect(DB_HOST, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
+mongoose.connect(DB_HOST)
   .then(() => {
     app.listen(PORT)
     console.log('Database connection successful')
