@@ -14,7 +14,8 @@ const login = async (req, res) => {
     // if (!user.comparePassword(password)) {
     //     throw new BadRequest('Invalid password');
     // }
-    const token = 'sdlgsdgsdg.sdgsdgsdgsdg.sgsdgsgsdgrg';
+    const token = user.createToken();
+    await User.findByIdAndUpdate(user._id, { token });
     res.json({
         status: 'succes',
         code: 200,

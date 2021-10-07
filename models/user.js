@@ -1,6 +1,8 @@
 const { Schema, model } = require('mongoose');
 const Joi = require('joi');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 const joiSchema = Joi.object({
     email: Joi.string().required(),
@@ -16,6 +18,10 @@ const userSchema = Schema({
         type: String,
         required: true,
         minlength: 6
+    },
+    token: {
+        type: String,
+        default: null
     }
 }, { versionKey: false, timestamps: true });
 
@@ -26,6 +32,14 @@ userSchema.methods.setPassword = function (password) {
 userSchema.methods.comparePassword = function (password) {
     return bcrypt.compareSync(password, this.password)
 };
+const { SECRET_KEY } = process.env;
+
+userSchema.methods.createToken = function () {
+    const payload = {
+        _id: this._id
+    };
+    return jwt.sign(payload, SECRET_KEY);
+}
 
 const User = model('user', userSchema);
 
