@@ -1,6 +1,5 @@
 const { User } = require('../../models');
-const { NotFound, BadRequest } = require('http-errors');
-const bcrypt = require('bcryptjs');
+const { BadRequest } = require('http-errors');
 
 const login = async (req, res) => {
     const { email, password } = req.body;
@@ -8,12 +7,6 @@ const login = async (req, res) => {
     if (!user || !user.comparePassword(password)) {
         throw new BadRequest('Invalid email or password');
     }
-    // if (!user) {
-    //     throw new NotFound(`Email ${email} not found`);
-    // }
-    // if (!user.comparePassword(password)) {
-    //     throw new BadRequest('Invalid password');
-    // }
     const token = user.createToken();
     await User.findByIdAndUpdate(user._id, { token });
     res.json({

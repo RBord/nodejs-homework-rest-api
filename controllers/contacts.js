@@ -1,9 +1,11 @@
 const { NotFound } = require('http-errors');
-const { Contact } = require('../models');
+const { Contact, User } = require('../models');
 const { successRes } = require('../utils');
 
 const getAllContacts = async (req, res) => {
-    const result = await Contact.find({}, '_id name email phone favorite');
+    const { _id } = req.user;
+
+    const result = await Contact.find({owner: _id}, '_id name email phone favorite owner');
     successRes(res, {result});
 };
 
@@ -18,7 +20,8 @@ const getContactById = async (req, res) => {
 
 const addContact = async (req, res) => {
     const { body } = req;
-    const result = await Contact.create(body, '_id name email phone favorite');
+    const newContact = {...body, owner: req.user._id }
+    const result = await Contact.create(newContact);
     successRes(res, {result}, 201);
 };
 
