@@ -1,49 +1,52 @@
-const { Schema, model } = require('mongoose');
-const Joi = require('joi');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-require('dotenv').config();
+const { Schema, model } = require('mongoose')
+const Joi = require('joi')
+const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
+require('dotenv').config()
 
 const joiSchema = Joi.object({
-    email: Joi.string().required(),
-    password: Joi.string().min(6).required(),
-});
+  email: Joi.string().required(),
+  password: Joi.string().min(6).required(),
+})
 
-const userSchema = Schema({
+const userSchema = Schema(
+  {
     email: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     password: {
-        type: String,
-        required: true,
-        minlength: 6
+      type: String,
+      required: true,
+      minlength: 6,
     },
     token: {
-        type: String,
-        default: null
-    }
-}, { versionKey: false, timestamps: true });
+      type: String,
+      default: null,
+    },
+  },
+  { versionKey: false, timestamps: true },
+)
 
 userSchema.methods.setPassword = function (password) {
-    this.password = bcrypt.hashSync(password, bcrypt.genSaltSync(10))
-};
-
-userSchema.methods.comparePassword = function (password) {
-    return bcrypt.compareSync(password, this.password)
-};
-const { SECRET_KEY } = process.env;
-
-userSchema.methods.createToken = function () {
-    const payload = {
-        _id: this._id
-    };
-    return jwt.sign(payload, SECRET_KEY);
+  this.password = bcrypt.hashSync(password, bcrypt.genSaltSync(10))
 }
 
-const User = model('user', userSchema);
+userSchema.methods.comparePassword = function (password) {
+  return bcrypt.compareSync(password, this.password)
+}
+const { SECRET_KEY } = process.env
+
+userSchema.methods.createToken = function () {
+  const payload = {
+    _id: this._id,
+  }
+  return jwt.sign(payload, SECRET_KEY)
+}
+
+const User = model('user', userSchema)
 
 module.exports = {
-    joiSchema,
-    User
+  joiSchema,
+  User,
 }
