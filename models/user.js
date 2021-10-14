@@ -2,6 +2,7 @@ const { Schema, model } = require('mongoose')
 const Joi = require('joi')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const gravatar = require('gravatar')
 require('dotenv').config()
 
 const joiSchema = Joi.object({
@@ -24,6 +25,10 @@ const userSchema = Schema(
       type: String,
       default: null,
     },
+    avatarURL: {
+      type: String,
+      default: null,
+    },
   },
   { versionKey: false, timestamps: true },
 )
@@ -43,7 +48,9 @@ userSchema.methods.createToken = function () {
   }
   return jwt.sign(payload, SECRET_KEY)
 }
-
+userSchema.methods.createAvatar = function (email) {
+  this.avatarURL = gravatar.url(email)
+}
 const User = model('user', userSchema)
 
 module.exports = {
