@@ -1,44 +1,43 @@
 const path = require('path')
 const fs = require('fs/promises')
+const Jimp = require('jimp')
 
 const { User } = require('../models')
 
-const avatarsDir = path.join(__dirname, '../', 'public/avatars')
 const add = async (req, res) => {
-  const { path: tempStorage, originalname } = req.file
-  try {
-    const newAvatar = {
-      email: req.body.email,
-      avatarURL: '/public/avatars/avatar.jpg',
-    }
-    const result = await User.create(newAvatar)
-    const [extention] = originalname.split('.').reverse()
-    const newFileName = `product_main-image_${result._id}.${extention}`
-    const resultStorage = path.join(avatarsDir, newFileName)
-    await fs.rename(tempStorage, resultStorage)
-    const avatarURL = path.join('/products', newFileName)
-    const avatar = await User.findByIdAndUpdate(
-      result._id,
-      { avatarURL },
-      { new: true },
-    )
-    res.status(201).json({
-      result: avatar,
+  const { description } = req.body
+  const { _id, token } = req.user
+  const { path: tempDir, originalname } = req.file
+  const avatarsDir = path.join('public/avatars', originalname)
+  // Jimp.read(tempDir, (err, lenna) => {
+  //   if (err) throw err
+  //   lenna
+  //     .resize(250, 250)
+  //     .quality(60)
+  //     .write(avatarsDir + `avatar-${_id}.jpg`)
+  // })
+
+  if (token === null) {
+    res.json({
+      status: 'error',
+      code: 401,
+      message: 'Not Authorized',
     })
+  }
+  try {
+    await fs.rename(tempDir, avatarsDir)
+    await User.findByIdAndUpdate(_id, { avatarURL: avatarsDir })
   } catch (error) {
-    await fs.unlink(tempStorage)
+    await fs.unlink(tempDir)
     throw error
   }
-}
-
-const getAll = async (req, res) => {
-  const result = await User.find({})
   res.json({
-    result,
+    description,
+    status: 200,
+    avatarURL: avatarsDir,
   })
 }
 
 module.exports = {
   add,
-  getAll,
 }

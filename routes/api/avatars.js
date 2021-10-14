@@ -12,6 +12,4 @@ router.patch(
   controllerWrapper(ctrl.add),
 )
 
-router.get('/', controllerWrapper(ctrl.getAll))
-
 module.exports = router
