@@ -8,14 +8,11 @@ const add = async (req, res) => {
   const { description } = req.body
   const { _id, token } = req.user
   const { path: tempDir, originalname } = req.file
-  const avatarsDir = path.join('public/avatars', originalname)
-  // Jimp.read(tempDir, (err, lenna) => {
-  //   if (err) throw err
-  //   lenna
-  //     .resize(250, 250)
-  //     .quality(60)
-  //     .write(avatarsDir + `avatar-${_id}.jpg`)
-  // })
+  const avatarsDir = path.join(process.cwd(), 'public/avatars')
+  Jimp.read(tempDir, (err, lenna) => {
+    if (err) throw err
+    lenna.resize(250, 250).quality(60)
+  })
 
   if (token === null) {
     res.json({
@@ -25,17 +22,21 @@ const add = async (req, res) => {
     })
   }
   try {
-    await fs.rename(tempDir, avatarsDir)
-    await User.findByIdAndUpdate(_id, { avatarURL: avatarsDir })
+    const [extention] = originalname.split('.').reverse()
+    const newAvatarName = `avatar-${_id}.${extention}`
+    const resultDir = path.join(avatarsDir, newAvatarName)
+    await fs.rename(tempDir, resultDir)
+    const avatar = path.join('/avatars', newAvatarName)
+    await User.findByIdAndUpdate(_id, { avatarURL: avatar })
+    res.json({
+      description,
+      status: 200,
+      avatarURL: avatar,
+    })
   } catch (error) {
     await fs.unlink(tempDir)
     throw error
   }
-  res.json({
-    description,
-    status: 200,
-    avatarURL: avatarsDir,
-  })
 }
 
 module.exports = {
