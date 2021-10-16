@@ -1,5 +1,5 @@
 const { User } = require('../../models')
-
+const { v4 } = require('uuid')
 const { Conflict } = require('http-errors')
 
 const register = async (req, res) => {
@@ -8,7 +8,7 @@ const register = async (req, res) => {
   if (user) {
     throw new Conflict('Email in use')
   }
-  const newUser = new User({ email })
+  const newUser = new User({ email, verifyToken: v4() })
   newUser.setPassword(password)
   newUser.createAvatar(email)
   await newUser.save()
