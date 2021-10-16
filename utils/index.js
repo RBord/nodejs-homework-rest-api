@@ -1,5 +1,5 @@
-const successRes = require('./successRes');
+const successRes = require('./successRes')
 
 module.exports = {
-    successRes
+  successRes,
 }
